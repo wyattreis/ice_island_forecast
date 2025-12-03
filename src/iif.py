@@ -335,7 +335,7 @@ if is_default:
 else:
     st.markdown(f"**Active Location (override):** `{hf_lat:.6f}, {hf_lon:.6f}` — default: {LOCATION.get('name', 'Default')} `{default_loc_lat:.6f}, {default_loc_lon:.6f}`")
 
-st.markdown(f"**Water Temperature Source:** {water_temp_source}")
+st.markdown(f"**Water Temperature Source:** {water_temp_source} — {water_temp_c:.1f}°C")
 
 if st.button('🌡️ Compute Heat Fluxes'):
     try:
