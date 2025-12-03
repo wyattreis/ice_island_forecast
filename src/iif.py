@@ -331,9 +331,9 @@ default_loc_lat = LOCATION.get('lat')
 default_loc_lon = LOCATION.get('lon')
 is_default = (hf_lat == default_loc_lat and hf_lon == default_loc_lon)
 if is_default:
-    st.markdown(f"**Active Location:** {LOCATION.get('name', 'Default')} — `{hf_lat:.6f}, {hf_lon:.6f}`")
+    st.markdown(f"**Active Location:** {LOCATION.get('name', 'Default')} — {hf_lat:.6f}, {hf_lon:.6f}")
 else:
-    st.markdown(f"**Active Location (override):** `{hf_lat:.6f}, {hf_lon:.6f}` — default: {LOCATION.get('name', 'Default')} `{default_loc_lat:.6f}, {default_loc_lon:.6f}`")
+    st.markdown(f"**Active Location (override):** {hf_lat:.6f}, {hf_lon:.6f} — default: {LOCATION.get('name', 'Default')} {default_loc_lat:.6f}, {default_loc_lon:.6f}")
 
 st.markdown(f"**Water Temperature Source:** {water_temp_source} — {water_temp_c:.1f}°C")
 
