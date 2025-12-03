@@ -1,0 +1,3 @@
+[submodule "external/hff"]
+	path = external/hff
+	url = https://github.com/wyattreis/hff.git
