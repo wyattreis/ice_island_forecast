@@ -103,37 +103,56 @@ if forecast_data and forecast_data['status'] == 'success':
     for i in range(0, len(forecast_periods), cols_per_row):
         cols = st.columns(cols_per_row)
         
+        # Determine number of rows to know which row is last (for bottom borders)
+        import math
+        nrows = math.ceil(len(forecast_periods) / cols_per_row)
+        current_row = i // cols_per_row
+
         for j in range(cols_per_row):
             idx = i + j
             if idx < len(forecast_periods):
                 period = forecast_periods[idx]
-                
+
                 with cols[j]:
                     # Determine if day or night for styling
                     is_daytime = period.get('isDaytime', True)
                     icon = "☀️" if is_daytime else "🌘"
 
-                    st.markdown(f"##### {icon} {period['name']}")
-                    st.markdown(f"_{period['shortForecast']}_")
-
-                    # Build single line with all key info
                     temp_color = "red" if is_daytime else "blue"
-                    info_line = f"🌡️:{temp_color}[{period['temperature']}°{period['temperatureUnit']}] | 🌬️ {period['windSpeed']} {period['windDirection']}"
-                    
+
+                    # Add borders between columns and rows by wrapping card content in a bordered div.
+                    # Right border for all but last column; bottom border for all but last row.
+                    is_last_col = (j == cols_per_row - 1)
+                    is_last_row = (current_row == nrows - 1)
+
+                    right_border = '1px solid #ddd' if not is_last_col else 'none'
+                    bottom_border = '1px solid #ddd' if not is_last_row else 'none'
+
+                    html = f"""
+<div style='padding:10px; border-right:{right_border}; border-bottom:{bottom_border};'>
+  <h5 style='margin:0 0 6px 0;'>{icon} {period['name']}</h5>
+  <p style='margin:0 0 6px 0;'><em>{period['shortForecast']}</em></p>
+  <p style='margin:0 0 6px 0;'>
+    🌡️: <span style='color:{temp_color}; font-weight:600;'>{period.get('temperature', 'N/A')}°{period.get('temperatureUnit', '')}</span>
+    | 🌬️ {period.get('windSpeed', '')} {period.get('windDirection', '')}
+"""
+
                     # Add precipitation probability if available
-                    if 'probabilityOfPrecipitation' in period and period['probabilityOfPrecipitation']['value'] is not None:
+                    if 'probabilityOfPrecipitation' in period and period['probabilityOfPrecipitation'].get('value') is not None:
                         precip_prob = period['probabilityOfPrecipitation']['value']
-                        info_line += f" | 💧 {precip_prob}%"
-                    
+                        html += f" | 💧 {precip_prob}%"
+
                     # Add cloud cover if available
                     if 'skyCover' in period:
                         cloud_cover = period['skyCover'].get('value', 'N/A')
-                        info_line += f" | ☁️ {cloud_cover}%"
-                    
-                    st.markdown(info_line)                   
-                    
+                        html += f" | ☁️ {cloud_cover}%"
+
+                    html += "</p>"
+
+                    st.markdown(html, unsafe_allow_html=True)
+
                     with st.expander("Detailed Forecast"):
-                        st.write(period['detailedForecast'])
+                        st.write(period.get('detailedForecast', ''))
     
     st.caption(f"Forecast updated: {forecast_data.get('updated', 'N/A')}")
     
