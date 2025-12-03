@@ -29,7 +29,6 @@ STATIONS_DATA = {
     }
 }
 
-
 def get_water_temperature(station_id, begin_date=None, end_date=None):
     """
     Fetch water temperature data from NOAA CO-OPS API for Great Lakes stations.
@@ -97,33 +96,8 @@ def get_water_temperature(station_id, begin_date=None, end_date=None):
             
     except Exception as e:
         return {'status': 'error', 'error': str(e)}
-    
-def get_color_for_temp(temp):
-    """
-    Return RGB color based on temperature.
-    
-    Parameters:
-    - temp: Temperature in F
-    
-    Returns:
-    - List of RGB values [R, G, B]
-    """
 
-    if temp < 32:
-        return [0, 0, 255]  # Blue for freezing
-    elif temp < 41:
-        return [0, 150, 255]  # Light blue
-    elif temp < 50:
-        return [0, 255, 200]  # Cyan
-    elif temp < 59:
-        return [0, 255, 0]  # Green
-    elif temp < 68:
-        return [255, 255, 0]  # Yellow
-    elif temp < 77:
-        return [255, 150, 0]  # Orange
-    else:
-        return [255, 0, 0]  # Red for warm
-    
+
 def fetch_all_station_data():
     """
     Fetch temperature data for all stations.
@@ -191,23 +165,3 @@ def get_station_water_temp_for_hff():
     # If no station data available, use default
     return 2.0, "Default"
     
-
-if __name__ == "__main__":
-    print("Testing Great Lakes Water Temperature API")
-    print("=" * 70)
-    
-    # Test 1: Single station
-    print("\nTest 1: Fetching data for a single station")
-    print("-" * 70)
-    test_station_id = '9075080'  # Point Iroquois, MI
-    
-    print
-    
-    print(f"Station ID: {test_station_id}")
-    result = get_water_temperature(test_station_id)
-
-    print(f"✓ Status: {result['status']}")
-    print(f"✓ Latest Temperature: {result['latest_temp']:.2f}°F)")
-    print(f"✓ Latest Reading Time: {result['latest_time']}")
-    print(f"✓ Total Readings: {result['count']}")
-    print(f"✓ Color Code: RGB{tuple(get_color_for_temp(result['latest_temp']))}")
