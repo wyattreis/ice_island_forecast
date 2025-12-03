@@ -22,7 +22,7 @@ from hff_utils import (
     calc_sensible_heat, calc_fluxes, calc_cooling_rate,
     build_energy_df, tz_to_gmt_offset
 )
-from external.hff.plots import (
+from hff_plots import (
     plot_forecast_heat_fluxes, plot_met, plot_cooling_rate, plot_parcel_cooling
 )
 
