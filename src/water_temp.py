@@ -3,16 +3,16 @@ from datetime import datetime, timedelta
 
 # Station data with coordinates
 STATIONS_DATA = {
-    'S.W. Pier, MI': {
-        'id': '9076070',
-        'lat': 46.5022,
-        'lon': -84.3478,
-        'lake': 'St. Marys River'
-    },
     'Little Rapids, MI': {
         'id': '9076033',
         'lat': 46.3514,
         'lon': -84.2183,
+        'lake': 'St. Marys River'
+    },
+    'S.W. Pier, MI': {
+        'id': '9076070',
+        'lat': 46.5022,
+        'lon': -84.3478,
         'lake': 'St. Marys River'
     },
     'De Tour Village, MI': {
