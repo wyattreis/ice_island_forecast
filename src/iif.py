@@ -230,6 +230,27 @@ if len(df) > 0:
     # Create plot with all stations
     fig = go.Figure()
     
+    # Try to load USACE hydro plant CSV and add as a trace
+    try:
+        usace_csv = Path(__file__).parent.parent / 'USACEhydro_WT_daily.csv'
+        if usace_csv.exists():
+            usace_df = pd.read_csv(usace_csv)
+            # Expect columns: date, temp_dy (temperatures in °F)
+            if 'date' in usace_df.columns and 'temp_dy' in usace_df.columns:
+                usace_df['date'] = pd.to_datetime(usace_df['date'])
+                # Add a trace for USACE Hydro Plant (daily points/line)
+                fig.add_trace(go.Scatter(
+                    x=usace_df['date'],
+                    y=usace_df['temp_dy'],
+                    mode='lines+markers',
+                    name='USACE Hydro Plant',
+                    line=dict(width=2, dash='dash', color='black'),
+                    marker=dict(symbol='x', size=6)
+                ))
+    except Exception:
+        # Don't let missing/invalid CSV break the app
+        pass
+
     for idx, row in df.iterrows():
         readings_df = pd.DataFrame(row['all_readings'])
         readings_df['time'] = pd.to_datetime(readings_df['time'])
