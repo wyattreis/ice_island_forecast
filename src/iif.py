@@ -368,15 +368,48 @@ st.write('Forecast met input data from NOAA Hourly Tabular Forecast Data. Heat F
 # Heat flux calculation inputs
 col1, col2, col3, col4 = st.columns(4)
 
-# Get water temperature from stations
-water_temp_c, water_temp_source = get_station_water_temp_for_hff()
+# Determine default water temperature: prefer latest USACE reading, else station, else 2°C
+# Read latest USACE temperature from CSV (if present)
+usace_temp_c = None
+usace_temp_date = None
+try:
+    usace_csv = Path(__file__).parent.parent / 'USACEhydro_WT_daily.csv'
+    if usace_csv.exists():
+        usace_df_all = pd.read_csv(usace_csv)
+        if 'date' in usace_df_all.columns and 'temp_dy' in usace_df_all.columns:
+            usace_df_all['date'] = pd.to_datetime(usace_df_all['date'], errors='coerce')
+            usace_df_all = usace_df_all.dropna(subset=['date'])
+            if not usace_df_all.empty:
+                latest_row = usace_df_all.loc[usace_df_all['date'].idxmax()]
+                try:
+                    temp_f = float(latest_row['temp_dy'])
+                    usace_temp_c = (temp_f - 32) * (5.0 / 9.0)
+                    usace_temp_date = latest_row['date']
+                except Exception:
+                    usace_temp_c = None
+except Exception:
+    usace_temp_c = None
+
+# Get station-derived temperature as fallback
+station_temp_c, station_source = get_station_water_temp_for_hff()
+
+# Choose default and source label
+if usace_temp_c is not None:
+    default_water_temp = usace_temp_c
+    water_temp_source_label = f"USACE Hydro Plant ({usace_temp_date.strftime('%Y-%m-%d')})"
+elif station_source != 'Default':
+    default_water_temp = station_temp_c
+    water_temp_source_label = station_source
+else:
+    default_water_temp = 2.0
+    water_temp_source_label = 'Default'
 
 with col1:
     hf_lat = st.number_input('Heat Flux Latitude', value=float(LOCATION.get('lat', 41.1242)), format="%.6f", step=0.000001, key='hf_lat')
 with col2:
     hf_lon = st.number_input('Heat Flux Longitude', value=float(LOCATION.get('lon', -101.3644337)), format="%.6f", step=0.000001, key='hf_lon')
 with col3:
-    T_water_C = st.number_input('Water Temperature (°C)', value=water_temp_c, key='T_water')
+    T_water_C = st.number_input('Water Temperature (°C)', value=default_water_temp, key='T_water')
 with col4:
     D = st.number_input('Characteristic Depth (m)', value=2.0, key='depth')
 
@@ -389,7 +422,10 @@ if is_default:
 else:
     st.markdown(f"**Active Location (override):** {hf_lat:.6f}, {hf_lon:.6f} — default: {LOCATION.get('name', 'Default')} {default_loc_lat:.6f}, {default_loc_lon:.6f}")
 
-st.markdown(f"**Water Temperature Source:** {water_temp_source} — {water_temp_c:.1f}°C")
+if usace_temp_c is not None:
+    st.markdown(f"**Water Temperature Source:** {water_temp_source_label} — {usace_temp_c:.1f}°C")
+else:
+    st.markdown(f"**Water Temperature Source:** {water_temp_source_label} — {default_water_temp:.1f}°C")
 
 if st.button('🌡️ Compute Heat Fluxes'):
     try:
